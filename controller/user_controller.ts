@@ -1,6 +1,6 @@
 import { User, CreateUserPayload, UserPayload } from "../model/user"
 import { Request, Response } from 'express';
-import { QueryFunc } from "../model/query";
+import query,{ QueryFunc } from "../model/query";
 
 
 
@@ -33,7 +33,7 @@ export default class UserController {
     }
 
     getUserList(req: Request, resp: Response) {
-        service.getUserList().then((users) => {
+        service.getUserList(query.httpRequestQuery(req)).then((users) => {
             var payload : UserPayload[] = []
             users?.map((user)=>{
                 payload.push(user.toPayload())

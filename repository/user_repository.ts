@@ -1,4 +1,4 @@
-import { Db } from "mongodb";
+import { Db, FindOptions } from "mongodb";
 import { User } from "../model/user";
 import { QueryFunc } from "../model/query";
 const collectionName: string = "users"
@@ -21,18 +21,27 @@ class UserMongoRepository {
     }
     async getUserList(...queries: QueryFunc[]): Promise<User[] | undefined> {
         try {
-            var query = {}
-            queries.map((q) => { Object.assign(query,q())})
+            var query = {
+                filter: {},
+                pagination: {}
+            }
+
+            queries.forEach((callback) => {
+                callback(query)
+            })
+            console.log(query)
             var users: User[] = []
-            var result = await dbInstance.collection(collectionName).find().toArray()
+            var result = await dbInstance.collection(collectionName).find(query.filter, query.pagination).toArray()
             result?.map((el) => {
                 var user: User = new User()
                 user.id = el._id
-                Object.keys(el).map((k) => {
+                Object.keys(el).forEach((k) => {
                     user[k] = el[k]
                 })
                 users.push(user)
             })
+
+
         } catch (err) {
             throw err
         }
@@ -40,17 +49,21 @@ class UserMongoRepository {
     }
     async getUser(queryFunc: QueryFunc, ...queries: QueryFunc[]): Promise<User | undefined> {
         try {
-            var query = queryFunc()
-            queries.map((q) => { Object.assign(query,q())})
-            var result = await dbInstance.collection(collectionName).findOne(query)
+            var query = {
+                filter: {},
+                pagination: {}
+            }  
+
+            queryFunc(query)
+            queries.forEach((callback) => {
+                callback(query)
+            })
+            
+            var result = await dbInstance.collection(collectionName).findOne(query.filter)
             if (!result) return undefined
             var user = new User()
-            user.id = result?._id
-            user.name = result?.name
-            user.email = result?.email
-            user.password = result?.password
-            user.passwordSalt = result?.passwordSalt
-
+            user.id = result._id
+            Object.keys(result).forEach((k) => { user[k] = result ? result : [k] })
             return user
         }
         catch (err) {
