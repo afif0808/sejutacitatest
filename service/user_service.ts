@@ -6,7 +6,7 @@ import query , {QueryFunc} from "../model/query"
 
 interface Repository {
     insertUser(user: User): void
-    getUserList(): Promise<User[] | undefined>
+    getUserList(...queries: QueryFunc[]): Promise<User[] | undefined>
     getUser(query: QueryFunc , ...queries : QueryFunc[]): Promise<User | undefined>
 }
 
@@ -28,9 +28,9 @@ export default class UserService {
             throw err
         }
     }
-    async getUserList(): Promise<User[] | undefined> {
+    async getUserList(...queries: QueryFunc[]): Promise<User[] | undefined> {
         try {
-            return repository.getUserList()
+            return repository.getUserList(...queries)
         } catch (err) {
             throw err
         }
