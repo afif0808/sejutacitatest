@@ -3,7 +3,7 @@ var bcrypt = require("bcrypt")
 
 
 class User {
-    declare _id: ObjectId
+    declare id: string
     declare name: string
     declare email: string
     declare password: string
@@ -21,7 +21,29 @@ class User {
         json = json.replace("_id", "id")
         return json
     }
+
+    toPayload() : UserPayload {
+        var payload : UserPayload = new UserPayload()
+        payload.id = this.id
+        payload.name = this.name
+        payload.email =this.email
+
+
+        return payload
+    }
+
 }
+
+class UserPayload {
+    declare id :string
+    declare name: string
+    declare email: string
+
+    constructor() {
+
+    }
+}
+
 
 class CreateUserPayload {
     declare name: string
@@ -36,7 +58,7 @@ class CreateUserPayload {
 
     toUser(): User {
         var user: User = new User()
-        user._id = new ObjectId()
+        user.id = new ObjectId().toString()
         user.name = this.name
         user.email = this.email
         try {
@@ -56,4 +78,4 @@ class CreateUserPayload {
 
 
 
-export { User, CreateUserPayload }
+export { User, CreateUserPayload ,UserPayload}
