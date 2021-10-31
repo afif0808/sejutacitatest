@@ -1,4 +1,4 @@
-import { User, CreateUserPayload } from "./../model/user"
+import { User, CreateUserPayload } from "../model/user"
 import { Request, Response } from 'express';
 
 
@@ -11,7 +11,7 @@ interface Service {
 var service: Service
 
 
-export default class Controller {
+class UserController {
     constructor(srv: Service) {
         service = srv
     }
