@@ -28,12 +28,11 @@ async function initApp() {
     var userMongoRepo = new UserMongoRepository(db)
     var userService = new UserService(userMongoRepo)
     var userController = new UserController(userService)
-
     userController.mount(app)
 
     // NOTE : resource cleanup
 
-    var port = 435
+    var port = process.env.APP_PORT || 3000
     app.listen(port, function () {
         console.log("Server started on port :" + port)
     })

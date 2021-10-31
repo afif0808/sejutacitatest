@@ -13,9 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongodb_1 = require("mongodb");
-const controller_1 = __importDefault(require("./controller/controller"));
-const mongo_repository_1 = __importDefault(require("./repository/mongo_repository"));
-const service_1 = __importDefault(require("./service/service"));
+const user_controller_1 = __importDefault(require("./controller/user_controller"));
+const user_repository_1 = require("./repository/user_repository");
+const user_service_1 = __importDefault(require("./service/user_service"));
 const initDB = () => __awaiter(void 0, void 0, void 0, function* () {
     var host = process.env.MONGODB_DOCKER_HOST || process.env.MONGODB_HOST;
     var port = process.env.MONGODB_PORT;
@@ -34,12 +34,12 @@ function initApp() {
         var app = express();
         app.use(express.json());
         var db = yield initDB();
-        var repo = new mongo_repository_1.default(db);
-        var service = new service_1.default(repo);
-        var controller = new controller_1.default(service);
-        controller.mount(app);
+        var userMongoRepo = new user_repository_1.UserMongoRepository(db);
+        var userService = new user_service_1.default(userMongoRepo);
+        var userController = new user_controller_1.default(userService);
+        userController.mount(app);
         // NOTE : resource cleanup
-        var port = 435;
+        var port = process.env.APP_PORT || 3000;
         app.listen(port, function () {
             console.log("Server started on port :" + port);
         });

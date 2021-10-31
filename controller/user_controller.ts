@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 
 
 interface Service {
-    createUser(user: User): void
+    createUser(payload: CreateUserPayload): Promise<User | undefined>
     getUserList(): Promise<User[] | undefined>
 }
 
@@ -22,16 +22,14 @@ export default class UserController {
     }
 
     createUser(req: Request, resp: Response) {
-        try {
-            var payload: CreateUserPayload = new CreateUserPayload(req.body)
-            var user: User = payload.toUser()
-            service.createUser(user)
+        var payload: CreateUserPayload = new CreateUserPayload(req.body)
+        service.createUser(payload).then((user) => {
             resp.contentType("json")
-            resp.send(user.toJSONString())
+            resp.send(user?.toJSONString())
+        }).catch((err) => {
+            resp.send(err)
+        })
 
-        } catch (error) {
-            console.log(error)
-        }
     }
 
     getUserList(req: Request, resp: Response) {
