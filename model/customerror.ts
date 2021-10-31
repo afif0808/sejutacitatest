@@ -1,4 +1,5 @@
 export default Object.freeze({
     notFoundError : "data not found",
-    userEmailExistsError : "user with given email already exist"
+    userEmailExistsError : "user with given email already exist",
+    passwordInvalidError : "password is invalid"
 })
