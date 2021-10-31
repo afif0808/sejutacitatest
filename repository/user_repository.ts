@@ -7,22 +7,30 @@ class UserMongoRepository {
     constructor(db: Db) {
         dbInstance = db
     }
-    insertUser(user: User) {
-        var collection = dbInstance.collection(collectionName)
-        collection.insertOne(user, (err, res) => {
-            if (err) throw err
-        })
-    }
-    async getUserList(): Promise<User[] | undefined> {
+    async insertUser(user: User) {
         try {
+            var collection = dbInstance.collection(collectionName)
+            var obj: any = user
+            obj._id = obj.id
+            await collection.insertOne(obj)
+            delete obj["_id"]
+        } catch (err) {
+            throw err
+        }
+
+    }
+    async getUserList(...queries: QueryFunc[]): Promise<User[] | undefined> {
+        try {
+            var query = {}
+            queries.map((q) => { Object.assign(query,q())})
             var users: User[] = []
             var result = await dbInstance.collection(collectionName).find().toArray()
             result?.map((el) => {
                 var user: User = new User()
-                user._id = el._id
-                user.email = el.email
-                user.password = el.password
-                user.name = el.name
+                user.id = el._id
+                Object.keys(el).map((k) => {
+                    user[k] = el[k]
+                })
                 users.push(user)
             })
         } catch (err) {
@@ -33,11 +41,11 @@ class UserMongoRepository {
     async getUser(queryFunc: QueryFunc, ...queries: QueryFunc[]): Promise<User | undefined> {
         try {
             var query = queryFunc()
-            queries.map((q) => { query = { ...query, ...q } })
+            queries.map((q) => { Object.assign(query,q())})
             var result = await dbInstance.collection(collectionName).findOne(query)
-            if(!result) return undefined
+            if (!result) return undefined
             var user = new User()
-            user._id = result?._id
+            user.id = result?._id
             user.name = result?.name
             user.email = result?.email
             user.password = result?.password
