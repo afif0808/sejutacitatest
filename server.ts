@@ -1,5 +1,5 @@
 import { Db, MongoClient } from "mongodb"
-import Controller from "./controller/controller"
+import UserController from "./controller/user_controller"
 import MongoRepository from "./repository/mongo_repository"
 import Service from "./service/service"
 
@@ -27,7 +27,7 @@ async function initApp() {
 
     var repo = new MongoRepository(db)
     var service = new Service(repo)
-    var controller = new Controller(service)
+    var controller = new UserController(service)
 
     controller.mount(app)
 
