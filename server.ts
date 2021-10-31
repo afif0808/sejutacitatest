@@ -1,19 +1,19 @@
 import { Db, MongoClient } from "mongodb"
 import UserController from "./controller/user_controller"
-import MongoRepository from "./repository/mongo_repository"
-import Service from "./service/service"
+import { UserMongoRepository } from "./repository/user_repository"
+import UserService from "./service/user_service"
 
 
 const initDB = async (): Promise<Db> => {
-        var host = process.env.MONGODB_DOCKER_HOST || process.env.MONGODB_HOST
-        var port = process.env.MONGODB_PORT
-        var dbName = process.env.MONGODB_DB_NAME
-        var url = 'mongodb://'+host+':/' + port
-        const client = new MongoClient(url);
-        var conn = await client.connect();
-        return new Promise<Db>((resolve) => {
-            resolve(conn.db(dbName));
-        });
+    var host = process.env.MONGODB_DOCKER_HOST || process.env.MONGODB_HOST
+    var port = process.env.MONGODB_PORT
+    var dbName = process.env.MONGODB_DB_NAME
+    var url = 'mongodb://' + host + ':/' + port
+    const client = new MongoClient(url);
+    var conn = await client.connect();
+    return new Promise<Db>((resolve) => {
+        resolve(conn.db(dbName));
+    });
 };
 
 
@@ -25,11 +25,11 @@ async function initApp() {
     app.use(express.json())
     var db = await initDB()
 
-    var repo = new MongoRepository(db)
-    var service = new Service(repo)
-    var controller = new UserController(service)
+    var userMongoRepo = new UserMongoRepository(db)
+    var userService = new UserService(userMongoRepo)
+    var userController = new UserController(userService)
 
-    controller.mount(app)
+    userController.mount(app)
 
     // NOTE : resource cleanup
 

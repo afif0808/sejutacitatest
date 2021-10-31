@@ -11,7 +11,7 @@ interface Service {
 var service: Service
 
 
-class UserController {
+export default class UserController {
     constructor(srv: Service) {
         service = srv
     }
@@ -46,3 +46,4 @@ class UserController {
     }
 
 }
+
