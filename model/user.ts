@@ -22,20 +22,18 @@ class User {
         return json
     }
 
-    toPayload() : UserPayload {
-        var payload : UserPayload = new UserPayload()
+    toPayload(): UserPayload {
+        var payload: UserPayload = new UserPayload()
         payload.id = this.id
         payload.name = this.name
-        payload.email =this.email
-
-
+        payload.email = this.email
         return payload
     }
 
 }
 
 class UserPayload {
-    declare id :string
+    declare id: string
     declare name: string
     declare email: string
 
@@ -71,11 +69,23 @@ class CreateUserPayload {
     }
 
 }
+// Update my user
+class UpdateMePayload {
+    declare name: string
+    declare email: string
+}
+
+class UpdateUserPayload {
+    declare name: string
+    declare email: string
+    declare roleId: string
+}
+
+class UpdatePasswordPayload {
+    declare old: string
+    declare new: string
+}
 
 
 
-
-
-
-
-export { User, CreateUserPayload ,UserPayload}
+export { User, CreateUserPayload, UserPayload }
