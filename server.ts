@@ -1,6 +1,8 @@
 import { Db, MongoClient } from "mongodb"
+import AuthController from "./controller/auth_controller";
 import UserController from "./controller/user_controller"
 import { UserMongoRepository } from "./repository/user_repository"
+import AuthService from "./service/auth_service";
 import UserService from "./service/user_service"
 
 
@@ -28,7 +30,14 @@ async function initApp() {
     var userMongoRepo = new UserMongoRepository(db)
     var userService = new UserService(userMongoRepo)
     var userController = new UserController(userService)
+
     userController.mount(app)
+
+    var authService = new AuthService(userMongoRepo)
+    var authController = new AuthController(authService)
+
+    authController.mount(app)
+
 
     // NOTE : resource cleanup
 
