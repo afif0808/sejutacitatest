@@ -75,7 +75,7 @@ class UserMongoRepository {
             if (!result) return undefined
             var user = new User()
             user.id = result._id
-            Object.keys(result).forEach((k) => { user[k] = result ? result : [k] })
+            Object.keys(result).forEach((k,v) => { user[k] = result && result[k] })
             return user
         }
         catch (err) {
