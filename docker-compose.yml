@@ -1,0 +1,20 @@
+version: '3.0'
+services:
+  sejutacitatest-app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 435:435
+      # - 27017:27017
+    environment:
+      - MONGODB_DOCKER_HOST=sejutacitatest-mongo
+    links:
+      - sejutacitatest-mongo
+  sejutacitatest-mongo:
+    image: mongo:latest
+    volumes:
+      - /mongodb:/data/db
+    ports:
+      - 27017:27017
+  
