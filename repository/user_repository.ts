@@ -19,18 +19,31 @@ class UserMongoRepository {
         }
 
     }
-    async getUserList(...queries: QueryFunc[]): Promise<User[] | undefined> {
-        try {
-            var query = {
-                filter: {},
-                pagination: {}
-            }
 
-            queries.forEach((callback) => {
-                callback(query)
-            })
-            console.log(query)
+    applyListQuery(queries: QueryFunc[]): {} {
+        var query = {
+            filter: {},
+            pagination: {}
+        }
+
+        queries.forEach((callback) => {
+            callback(query)
+        })
+
+        var skip: any = query.pagination["page"] > 0 && query.pagination["page"] - 1
+        skip = skip * query.pagination["limit"]
+
+        Object.assign(query.pagination, { "skip": skip })
+
+        return query
+    }
+
+    async getUserList(...queries: QueryFunc[]): Promise<User[] | undefined> {
+
+        try {
+            var query: any = this.applyListQuery(queries)
             var users: User[] = []
+
             var result = await dbInstance.collection(collectionName).find(query.filter, query.pagination).toArray()
             result?.map((el) => {
                 var user: User = new User()
@@ -40,7 +53,6 @@ class UserMongoRepository {
                 })
                 users.push(user)
             })
-
 
         } catch (err) {
             throw err
@@ -52,13 +64,13 @@ class UserMongoRepository {
             var query = {
                 filter: {},
                 pagination: {}
-            }  
+            }
 
             queryFunc(query)
             queries.forEach((callback) => {
                 callback(query)
             })
-            
+
             var result = await dbInstance.collection(collectionName).findOne(query.filter)
             if (!result) return undefined
             var user = new User()
