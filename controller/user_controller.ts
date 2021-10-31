@@ -1,11 +1,12 @@
-import { User, CreateUserPayload } from "../model/user"
+import { User, CreateUserPayload, UserPayload } from "../model/user"
 import { Request, Response } from 'express';
+import { QueryFunc } from "../model/query";
 
 
 
 interface Service {
     createUser(payload: CreateUserPayload): Promise<User | undefined>
-    getUserList(): Promise<User[] | undefined>
+    getUserList(...queries: QueryFunc[]): Promise<User[] | undefined>
 }
 
 var service: Service
@@ -24,8 +25,7 @@ export default class UserController {
     createUser(req: Request, resp: Response) {
         var payload: CreateUserPayload = new CreateUserPayload(req.body)
         service.createUser(payload).then((user) => {
-            resp.contentType("json")
-            resp.send(user?.toJSONString())
+            resp.json(user?.toPayload())
         }).catch((err) => {
             resp.send(err)
         })
@@ -34,12 +34,12 @@ export default class UserController {
 
     getUserList(req: Request, resp: Response) {
         service.getUserList().then((users) => {
-            var json: any = users?.map((user) => {
-                return user.toJSONString()
+            var payload : UserPayload[] = []
+            users?.map((user)=>{
+                payload.push(user.toPayload())
             })
-            json = "[" + json.join(",") + "]"
-            resp.contentType("json")
-            resp.send(json)
+            resp.json(payload)            
+
         })
     }
 
