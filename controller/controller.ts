@@ -1,11 +1,11 @@
 import { User, CreateUserPayload } from "./../model/user"
 import { Request, Response } from 'express';
-import { ObjectId } from "bson";
 
 
 
 interface Service {
-    createUser: (user: User) => void
+    createUser(user: User): void
+    getUserList(): Promise<User[] | undefined>
 }
 
 var service: Service
@@ -18,6 +18,7 @@ export default class Controller {
 
     mount(app: any) {
         app.post("/users/", this.createUser)
+        app.get("/users/", this.getUserList)
     }
 
     createUser(req: Request, resp: Response) {
@@ -32,4 +33,16 @@ export default class Controller {
             console.log(error)
         }
     }
+
+    getUserList(req: Request, resp: Response) {
+        service.getUserList().then((users) => {
+            var json: any = users?.map((user) => {
+                return user.toJSONString()
+            })
+            json = "[" + json.join(",") + "]"
+            resp.contentType("json")
+            resp.send(json)
+        })
+    }
+
 }
