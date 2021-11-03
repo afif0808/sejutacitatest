@@ -7,8 +7,16 @@ enum RoleAccess {
     ReadUserList = "read-user-list",
     ReadUser = "read-user",
     UpdateUser = "update-user",
+    DeleteUser = "delete-user",
+    InvalidateRefreshToken = "invalidate-refresh-token",
     CreateRole = "create-role",
-    ReadRoleList = "read-role-list"
+    ReadRoleList = "read-role-list",
+    ReadRole = "read-role",
+    UpdateRole = "update-role",
+    DeleteRole = "delete-role",
+    ReadAccesses = "read-accesses",
+
+
 }
 
 
@@ -42,7 +50,7 @@ class CreateRolePayload {
                 items: { "type": "string" }
             },
         },
-        required: ["name"]
+        required: ["name", "accesses"]
     }
 
     constructor(payload?: any) {
@@ -63,8 +71,46 @@ class CreateRolePayload {
 
 }
 
+class UpdateRolePayload {
+    declare id: string
+    declare name: string
+    declare accesses: RoleAccess[]
+
+    schema: Schema = {
+        type: "object",
+        properties: {
+            name: { type: "string" },
+            accesses: {
+                type: "array",
+                items: { "type": "string" }
+            },
+        },
+        required: ["name", "id", "accesses"]
+    }
+
+    constructor(id: string, payload?: any) {
+        if (!payload) return
+        payload.id = id
+        var errors = new Validator().validate(payload, this.schema).errors
+        if (errors.length > 0) throw customerror.invalidPayload
+        this.id = payload.id
+        this.name = payload.name
+        this.accesses = payload.accesses
+    }
+
+    toRole(): Role {
+        var role = new Role()
+        role.id = new ObjectId().toString()
+        role.accesses = this.accesses
+        role.name = this.name
+        return role
+    }
+
+}
+
+
 class RolePayload {
-    declare id : string
+    declare id: string
     declare name: string
     declare accesses: RoleAccess[]
 
@@ -75,4 +121,4 @@ class RolePayload {
 
 
 
-export { Role, RoleAccess, CreateRolePayload, RolePayload }
+export { Role, RoleAccess, CreateRolePayload, RolePayload, UpdateRolePayload }
