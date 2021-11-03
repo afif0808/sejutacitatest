@@ -14,21 +14,36 @@ interface UserRepository {
     getUser(query: QueryFunc, ...queries: QueryFunc[]): Promise<User | undefined>
     deleteUser(queryFunc: QueryFunc, ...queries: QueryFunc[]): Promise<void>
     updateUser(user: User, queryFunc: QueryFunc, ...queries: QueryFunc[]): Promise<void>
-
 }
+
+interface RoleRepository {
+    getRole(query: QueryFunc, ...queries: QueryFunc[]): Promise<Role | undefined>
+}
+
 
 
 export default class UserService {
     declare userRepo: UserRepository
-    constructor(userRepo: UserRepository) {
+    declare roleRepo: RoleRepository
+    constructor(userRepo: UserRepository, roleRepo: RoleRepository) {
         this.userRepo = userRepo
+        this.roleRepo = roleRepo
     }
+
+
+
+
     async createUser(payload: CreateUserPayload): Promise<User | undefined> {
         try {
             var existing = await this.userRepo.getUser(query.emailFilterQuery(payload.email))
             if (existing) throw customerror.userEmailExistsError
             var user: User = payload.toUser()
             this.userRepo.insertUser(user)
+
+            var role = await this.roleRepo.getRole(query.idFilterQuery(payload.roleId))
+            console.log(role)
+            if (!role) throw customerror.notFoundError
+            user.role = role
             return user
         } catch (err) {
             throw err
@@ -65,12 +80,17 @@ export default class UserService {
                 if (existing) throw customerror.userEmailExistsError
             }
 
+            if (payload.roleId != existing.roleId) {
+                var role = await this.roleRepo.getRole(query.idFilterQuery(payload.roleId))
+                console.log(role)
+                if (!role) throw customerror.notFoundError
+            }
+
             existing.name = payload.name
             existing.email = payload.email
             existing.roleId = payload.roleId
 
             if (payload.password) existing.password = bcrypt.hashSync(payload.password, existing.passwordSalt)
-
 
             await this.userRepo.updateUser(existing, query.idFilterQuery(existing.id))
         }
