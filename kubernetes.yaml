@@ -24,11 +24,12 @@ spec:
         ports:
         - containerPort: 27018
         volumeMounts: 
-        - mountPath: /mongodb
-          name: m
-          ongodb
+        - mountPath: /data/db
+          name: sejutacitatest-storage
       volumes:
-      - name: mongodb
+      - name: sejutacitatest-storage
+        persistentVolumeClaim:
+          claimName: sejutacitatest-pv-claim
 
 --- 
 
@@ -45,5 +46,34 @@ spec:
       targetPort: 5000
   type: NodePort
 
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sejutacitatest-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data"
 
 
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sejutacitatest-pv-claim
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi

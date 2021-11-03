@@ -2,7 +2,7 @@ import { Role, RoleAccess, CreateRolePayload, RolePayload, UpdateRolePayload } f
 import { NextFunction, Request, Response } from 'express';
 import query, { QueryFunc } from "../model/query";
 import customerror from "../model/customerror";
-import { RestResponse } from "../model/rest";
+import { RestResponse } from "../model/response";
 import { CreateUserPayload, UpdateUserPayload } from "../model/user";
 
 

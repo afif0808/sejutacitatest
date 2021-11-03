@@ -2,8 +2,8 @@ import { User, CreateUserPayload, UserPayload, UpdateUserPayload } from "../mode
 import { NextFunction, Request, Response } from 'express';
 import query, { QueryFunc } from "../model/query";
 import customerror from "../model/customerror";
-import { RestResponse } from "../model/rest";
-import { RoleAccess } from "../model/role";
+import { RestResponse } from "../model/response";
+import { Role, RoleAccess } from "../model/role";
 
 
 
@@ -38,8 +38,6 @@ export default class UserController {
         app.get("/users/me/user", middleware.authenticate(), this.getMe)
         app.put("/users/:id", middleware.authenticate(RoleAccess.UpdateRole), this.updateUser)
         app.delete("/users/:id", middleware.authenticate(RoleAccess.DeleteUser), this.deleteUser)
-
-
         app.patch("/users/:id/refreshtoken/invalidate", middleware.authenticate(RoleAccess.InvalidateRefreshToken), this.invalidateRefreshToken("id"))
         app.patch("/users/refreshtoken/:token/invalidate/", middleware.authenticate(RoleAccess.InvalidateRefreshToken), this.invalidateRefreshToken("token"))
 
@@ -56,6 +54,7 @@ export default class UserController {
                     new RestResponse(409, "", null, err).json(resp)
                     break;
                 case customerror.invalidPayload:
+                case customerror.notFoundError:
                     new RestResponse(400, "bad request", null, err).json(resp)
                     break;
                 default:
@@ -72,6 +71,7 @@ export default class UserController {
             users?.forEach((user) => {
                 payload.push(user.toPayload())
             })
+
             new RestResponse(200, "", payload).json(resp)
         }).catch((err) => {
             switch (err) {
@@ -100,8 +100,8 @@ export default class UserController {
     }
 
     getMe(req: Request, resp: Response) {
-        var user : User = req["locals"].user
-        new RestResponse(200, "",user.toPayload()).json(resp)
+        var user: User = req["locals"].user
+        new RestResponse(200, "", user.toPayload()).json(resp)
     }
 
     deleteUser(req: Request, resp: Response) {
@@ -134,6 +134,7 @@ export default class UserController {
                     new RestResponse(409, "", null, err).json(resp)
                     break;
                 case customerror.invalidPayload:
+                case customerror.notFoundError:
                     new RestResponse(400, "bad request", null, err).json(resp)
                     break;
                 case customerror.notFoundError:
@@ -163,5 +164,6 @@ export default class UserController {
             })
         }
     }
+
 }
 

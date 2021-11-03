@@ -10,7 +10,7 @@ import { UserMongoRepository } from "./repository/user_repository"
 import AuthService from "./service/auth_service";
 import RoleService from "./service/role_service";
 import UserService from "./service/user_service"
-
+import { Request, Response, NextFunction } from "express"
 
 async function initService(app: any) {
     var db = new MongoDB()
@@ -19,7 +19,7 @@ async function initService(app: any) {
     var userMongoRepo = new UserMongoRepository(db)
     var roleMongoRepo = new RoleMongoRepository(db)
 
-    var userService = new UserService(userMongoRepo)
+    var userService = new UserService(userMongoRepo, roleMongoRepo)
     var authService = new AuthService(userMongoRepo)
     var roleService = new RoleService(roleMongoRepo)
 
@@ -49,6 +49,8 @@ async function initApp() {
 
 
     initService(app)
+
+  
 
     var port = process.env.APP_PORT || 3000
     app.listen(port, function () {

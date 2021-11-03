@@ -6,6 +6,7 @@ enum RoleAccess {
     CreateUser = "create-user",
     ReadUserList = "read-user-list",
     ReadUser = "read-user",
+    ReadUserCount = "read-user-count",
     UpdateUser = "update-user",
     DeleteUser = "delete-user",
     InvalidateRefreshToken = "invalidate-refresh-token",

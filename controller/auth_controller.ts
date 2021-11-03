@@ -1,6 +1,6 @@
 import { LoginPayload, Token } from "../model/auth";
 import { Request, Response } from "express"
-import { RestResponse } from "../model/rest";
+import { RestResponse } from "../model/response";
 import customerror from "../model/customerror";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express"
 import customerror from "../model/customerror"
-import { RestResponse } from "../model/rest"
+import { RestResponse } from "../model/response"
 import { Role, RoleAccess } from "../model/role"
 import { User } from "../model/user"
 
@@ -23,17 +23,20 @@ export default class AuthMiddleware {
 
                 if (!token || !token.includes("Bearer ")) throw customerror.unauthorizedError
                 token = token.replace("Bearer ", "")
-                var user: User = service.authenticate(token,requiredAccess)
+                var user: User = service.authenticate(token, requiredAccess)
                 if (user.role) {
-                    user.role = Object.assign(new Role(),user.role)
+                    user.role = Object.assign(new Role(), user.role)
                 }
                 req["locals"] = { user: user }
                 next()
-            } catch (err) {
+            } catch (err: any) {
                 switch (err) {
                     case customerror.unauthorizedError:
                         new RestResponse(401, "Unauthorized", null).json(resp)
                         break
+                    default:
+                        new RestResponse(500, "", null, err).json(resp)
+                        console.log(err)
                 }
                 return
             }
