@@ -8,6 +8,12 @@
   <h3>Kubernetes Configuration</h3>
     <code>kubectl -f apply kubernetes.yaml</code>
 
+
+<h3>Diagram</h3>
+
+<img src="diagram.jpg">
+
+
 <h3>Default Credentials</h3>
   <h5>Role Admin<h5>
   <table>
