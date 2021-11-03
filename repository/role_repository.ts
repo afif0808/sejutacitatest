@@ -69,7 +69,9 @@ class RoleMongoRepository {
             queries.forEach((callback) => {
                 callback(query)
             })
-
+            if (query.filter["id"])
+                delete Object.assign(query.filter, { _id: query.filter["id"] })["id"]
+            console.log(query)
             var result = await this.db.readConn.collection(collectionName).findOne(query.filter)
             if (!result) return undefined
             var role = new Role()

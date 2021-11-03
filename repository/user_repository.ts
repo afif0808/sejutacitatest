@@ -161,8 +161,7 @@ class UserMongoRepository {
             throw err
         }
     }
-
-
+    
 }
 
 export { UserMongoRepository }
