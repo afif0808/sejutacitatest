@@ -1,4 +1,5 @@
 import { ObjectId } from "bson";
+import { error } from "console";
 import { Schema, validate, Validator } from "jsonschema";
 import customerror from "./customerror";
 import { Role, RolePayload } from "./role";
@@ -13,7 +14,7 @@ class User {
     declare passwordSalt: string
     declare roleId: string
     declare role?: Role
-
+    declare refreshToken?: string
     constructor() {
 
     }
@@ -113,29 +114,18 @@ class UpdateUserPayload {
     constructor(id: string, payload?: any) {
         if (!payload) return
         var v = new Validator()
+        payload.id = id
         var errors = v.validate(payload, this.schema).errors
-        if (errors.length > 0) throw customerror.invalidPayload
-        this.id = id
+        if (errors.length > 0) {
+            console.log(errors)
+            throw customerror.invalidPayload
+
+        }
+        this.id = payload.id
         this.name = payload.name
         this.email = payload.email
         this.password = payload.password
         this.roleId = payload.roleId
-    }
-
-    toUser(): User {
-        var user: User = new User()
-        user.name = this.name
-        user.email = this.email
-        user.roleId = this.roleId
-        if (this.password) {
-            try {
-                user.passwordSalt = bcrypt.genSaltSync(10)
-                user.password = bcrypt.hashSync(this.password, user.passwordSalt)
-            } catch (err) {
-                throw err
-            }
-        }
-        return user
     }
 }
 
@@ -146,4 +136,4 @@ class UpdatePasswordPayload {
 
 
 
-export { User, CreateUserPayload, UserPayload }
+export { User, CreateUserPayload, UserPayload, UpdateUserPayload }
