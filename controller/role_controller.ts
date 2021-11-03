@@ -1,9 +1,9 @@
-import { Role, RoleAccess, CreateRolePayload, RolePayload } from "../model/role"
+import { Role, RoleAccess, CreateRolePayload, RolePayload, UpdateRolePayload } from "../model/role"
 import { NextFunction, Request, Response } from 'express';
 import query, { QueryFunc } from "../model/query";
 import customerror from "../model/customerror";
 import { RestResponse } from "../model/rest";
-import { CreateUserPayload } from "../model/user";
+import { CreateUserPayload, UpdateUserPayload } from "../model/user";
 
 
 
@@ -11,6 +11,7 @@ interface Service {
     createRole(payload: CreateRolePayload): Promise<Role | undefined>
     getRoleList(...queries: QueryFunc[]): Promise<Role[] | undefined>
     getRole(id: any): Promise<Role | undefined>
+    updateRole(payload: UpdateRolePayload): Promise<void>
 }
 
 interface Middleware {
@@ -30,9 +31,9 @@ export default class RoleController {
 
     mount(app: any) {
         app.post("/roles/", middleware.authenticate(RoleAccess.CreateRole), this.createRole)
-        app.get("/roles/", middleware.authenticate(), this.getRoleList)
-        app.get("/roles/:id", this.getRole)
-        app.get("/accesses/", this.getRoleAccesses)
+        app.get("/roles/", middleware.authenticate(RoleAccess.ReadRoleList), this.getRoleList)
+        app.put("/roles/:id", middleware.authenticate(RoleAccess.UpdateRole), this.updateRole)
+        app.get("/accesses/", middleware.authenticate(RoleAccess.ReadAccesses), this.getRoleAccesses)
     }
 
     async createRole(req: Request, resp: Response) {
@@ -51,7 +52,7 @@ export default class RoleController {
         }
     }
 
-    
+
     getRoleList(req: Request, resp: Response) {
         service.getRoleList(query.httpRequestQuery(req)).then((roles) => {
             var payload: RolePayload[] = []
@@ -74,8 +75,25 @@ export default class RoleController {
     }
 
 
-    getRole(req: Request, resp: Response) {
-
+    async updateRole(req: Request, resp: Response) {
+        try {
+            var id = req.params.id
+            var payload = new UpdateRolePayload(id, req.body)
+            await service.updateRole(payload)
+            new RestResponse(200, "Successfully updated").json(resp)
+        } catch (err: any) {
+            switch (err) {
+                case customerror.invalidPayload:
+                    new RestResponse(400, "bad request", null, err).json(resp)
+                    break;
+                case customerror.notFoundError:
+                    new RestResponse(404, "user not found", null, err).json(resp)
+                    break;
+                default:
+                    console.log(err)
+                    new RestResponse(500, "create user failed", null, err).json(resp)
+            }
+        }
     }
 
 
