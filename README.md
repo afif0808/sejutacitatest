@@ -9,9 +9,19 @@
     <code>kubectl -f apply kubernetes.yaml</code>
 
 
+<h3>Kubernetes Screenshot</h3>
+
+<img src="kubernetes-screenshot.png">
+<br>
+
 <h3>Diagram</h3>
 
 <img src="diagram.jpg">
+<br>
+
+
+
+
 
 
 <h3>Default Credentials</h3>
