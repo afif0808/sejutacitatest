@@ -31,7 +31,7 @@ export default class AuthService {
             if (!passwordValid) throw customerror.passwordInvalidError
 
             delete user.refreshToken
-            var accessToken = jwt.sign({ user: user, expiresIn: 60 * this.accessTokenDuration }, this.jwtSecretKey)
+            var accessToken = jwt.sign({ user: user }, this.jwtSecretKey, { expiresIn: 60 * this.accessTokenDuration })
 
             var refreshToken = jwt.sign({ userId: user.id }, this.jwtSecretKey)
             user.refreshToken = refreshToken
@@ -48,6 +48,7 @@ export default class AuthService {
             var payload = jwt.verify(token, this.jwtSecretKey)
             if (!payload["user"]) throw customerror.unauthorizedError
             var user: User = new User()
+            console.log(payload)
             Object.assign(user, payload["user"])
             if (!requiredAccess) {
                 return user
@@ -61,7 +62,7 @@ export default class AuthService {
             }
             throw customerror.unauthorizedError
         } catch (err: any) {
-            if (err["name"] == "JsonWebTokenError") {
+            if (err["name"] == "JsonWebTokenError" || err["name"] == "TokenExpiredError") {
                 throw customerror.unauthorizedError
             }
             throw err
