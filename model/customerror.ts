@@ -4,5 +4,4 @@ export default Object.freeze({
     passwordInvalidError : "password is invalid",
     unauthorizedError : "Unauthorized",
     invalidPayload : "invalid payload"
-
 })

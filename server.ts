@@ -1,23 +1,42 @@
-import { Db, MongoClient } from "mongodb"
+import { Db, Logger, LoggerLevel, MongoClient } from "mongodb"
 import AuthController from "./controller/auth_controller";
+import RoleController from "./controller/role_controller";
 import UserController from "./controller/user_controller"
+import { MongoDB } from "./database";
+import { generateDefaultData } from "./data_seed";
+import AuthMiddleware from "./middleware/auth_middleware";
+import { RoleMongoRepository } from "./repository/role_repository";
 import { UserMongoRepository } from "./repository/user_repository"
 import AuthService from "./service/auth_service";
+import RoleService from "./service/role_service";
 import UserService from "./service/user_service"
 
 
-const initDB = async (): Promise<Db> => {
-    var host = process.env.MONGODB_DOCKER_HOST || process.env.MONGODB_HOST
-    var port = process.env.MONGODB_PORT
-    var dbName = process.env.MONGODB_DB_NAME
-    var url = 'mongodb://' + host + ':/' + port
-    const client = new MongoClient(url);
-    var conn = await client.connect();
-    return new Promise<Db>((resolve) => {
-        resolve(conn.db(dbName));
-    });
-};
+async function initService(app: any) {
+    var db = new MongoDB()
+    await db.connect()
 
+    var userMongoRepo = new UserMongoRepository(db)
+    var roleMongoRepo = new RoleMongoRepository(db)
+
+    var userService = new UserService(userMongoRepo)
+    var authService = new AuthService(userMongoRepo)
+    var roleService = new RoleService(roleMongoRepo)
+
+
+    var authMiddleware = new AuthMiddleware(authService)
+
+    var authController = new AuthController(authService)
+    var userController = new UserController(userService, authMiddleware)
+    var roleController = new RoleController(roleService, authMiddleware)
+
+
+    userController.mount(app)
+    authController.mount(app)
+    roleController.mount(app)
+
+
+}
 
 
 async function initApp() {
@@ -25,21 +44,11 @@ async function initApp() {
     var express = require('express')
     var app = express()
     app.use(express.json())
-    var db = await initDB()
 
-    var userMongoRepo = new UserMongoRepository(db)
-    var userService = new UserService(userMongoRepo)
-    var userController = new UserController(userService)
-
-    userController.mount(app)
-
-    var authService = new AuthService(userMongoRepo)
-    var authController = new AuthController(authService)
-
-    authController.mount(app)
+    await generateDefaultData()
 
 
-    // NOTE : resource cleanup
+    initService(app)
 
     var port = process.env.APP_PORT || 3000
     app.listen(port, function () {
