@@ -23,13 +23,7 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 27018
-        volumeMounts: 
-        - mountPath: /data/db
-          name: sejutacitatest-storage
-      volumes:
-      - name: sejutacitatest-storage
-        persistentVolumeClaim:
-          claimName: sejutacitatest-pv-claim
+       
 
 --- 
 
