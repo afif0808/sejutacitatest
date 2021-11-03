@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sejutacitatest
+spec:
+  selector:
+    matchLabels:
+      app: sejutacitatest
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: sejutacitatest
+    spec:
+      containers:
+      - name: sejutacitatest
+        image: sejutacitatest_sejutacitatest-app
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+      - name: sejutacitatest-mongo
+        image: mongo
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 27018
+        volumeMounts: 
+        - mountPath: /mongodb
+          name: m
+          ongodb
+      volumes:
+      - name: mongodb
+
+--- 
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: sejutacitatest
+spec:
+  selector:
+    app: sejutacitatest
+  ports:
+    - protocol: "TCP"
+      port: 5000
+      targetPort: 5000
+  type: NodePort
+
+
+
